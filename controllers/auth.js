@@ -47,9 +47,6 @@ const login = async (req, res) => {
 
 const updateUser = async (req, res) => {
   const { email, name } = req.body;
-  if (!email || !name) {
-    throw new BadRequestError('Please provide all values');
-  }
   const user = await User.findOne({ _id: req.user.userId });
 
   user.email = email;
@@ -59,6 +56,31 @@ const updateUser = async (req, res) => {
 
   const token = user.createJWT()
   user.createCookie(res, token)
+
+  res.status(StatusCodes.OK).json({
+    user: {
+      email: user.email,
+      name: user.name,
+      id: user._id
+    },
+  });
+};
+
+const updatePassword = async (req, res) => {
+  const { password, oldpassword } = req.body;
+  if (!password || !oldpassword) {
+    throw new BadRequestError('Please provide all values');
+  }
+
+  const user = await User.findOne({ _id: req.user.userId });
+
+  const isPasswordCorrect = await user.comparePassword(oldpassword);
+  if (!isPasswordCorrect) {
+    throw new BadRequestError('Incorrect old password');
+  }
+
+  user.password = password;
+  await user.save();
 
   res.status(StatusCodes.OK).json({
     user: {
@@ -97,5 +119,6 @@ module.exports = {
   login,
   updateUser,
   info,
-  logout
+  logout,
+  updatePassword
 };

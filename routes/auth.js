@@ -13,10 +13,11 @@ const apiLimiter = rateLimiter({
   },
 });
 
-const { register, login, updateUser, info, logout } = require('../controllers/auth');
+const { register, login, updateUser, info, logout, updatePassword } = require('../controllers/auth');
 router.post('/register', register);
 router.post('/login', login);
 router.post('/logout', logout);
 router.get('/info', authenticateUser, info);
 router.patch('/updateUser', authenticateUser, testUser, updateUser);
+router.patch('/updatePassword', authenticateUser, testUser, updatePassword);
 module.exports = router;
